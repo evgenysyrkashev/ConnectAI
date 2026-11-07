@@ -5,6 +5,8 @@ their preferred channel (email, WhatsApp, simulated SMS), let them **decide** wi
 then **apply** the change to Yext and **confirm** on the same channel. Built for the Since AI Hackathon 2026 × Fonecta.
 All data is synthetic (the kit's).
 
+![ConnectAI dashboard: needs-attention queue and all businesses](docs/images/dashboard.png)
+
 ## Context
 
 Challenge: Connect Suggests – Customer Approves (Since AI Hackathon 2026 × Fonecta, 6–8 Nov 2026, Turku). The kit's own
