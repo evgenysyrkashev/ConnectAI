@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Campaign{% endblock %}
+{% block content %}
+<h1>Campaign: {{ c.template_id }} <span class="badge">{{ c.status }}</span></h1>
+<p class="summary">Contacted {{ n_contacted }} · Stayed quiet {{ n_quiet }} · ≈ {{ covered }} views at risk covered ({{ pct }}% of the selection)</p>
+{% if codes %}<p class="muted">Stayed quiet: {% for code, n in codes.items() %}{{ code or "?" }} ×{{ n }}{{ ", " if not loop.last }}{% endfor %}</p>{% endif %}
+{% if drafts %}
+<form hx-post="/ui/campaigns/{{ c.id }}/send" hx-swap="none"
+      hx-confirm="Send {{ drafts }} message(s)? Recipients: {% for card in cards if card.m.status == 'draft' %}{{ card.to }}{{ ', ' if not loop.last }}{% endfor %}">
+  <button type="submit" class="primary">Send {{ drafts }} draft(s)</button>
+</form>
+{% endif %}
+{% for card in cards %}{% include "partials/message_card.html" %}{% endfor %}
+{% endblock %}

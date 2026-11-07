@@ -1,0 +1,3 @@
+{# expects text, target, rid #}
+<p class="muted">Machine translation ({{ target|upper }}) · <button type="button" class="link" hx-post="/ui/replies/{{ rid }}/translate" hx-vals='{"to": "{{ target }}"}' hx-target="#tr-{{ rid }}" hx-swap="innerHTML">Retranslate</button></p>
+<pre lang="{{ target }}">{{ text }}</pre>

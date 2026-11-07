@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Campaigns{% endblock %}
+{% block content %}
+<h1>Campaigns</h1>
+<p><a class="button" href="/campaigns/new">New campaign</a></p>
+<table>
+  <thead><tr><th>Created</th><th>Template</th><th>Businesses</th><th>Status</th><th>By</th></tr></thead>
+  <tbody>
+  {% for c in items %}
+    <tr><td><a href="/campaigns/{{ c.id }}">{{ c.created_at }}</a></td><td>{{ c.template_id }}</td><td>{{ c.entity_ids|length }}</td><td>{{ c.status }}</td><td>{{ c.created_by }}</td></tr>
+  {% else %}
+    <tr><td colspan="5" class="muted">No campaigns yet.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

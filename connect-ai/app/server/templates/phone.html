@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Phone{% endblock %}
+{% block content %}
+<h1>Phone (simulated SMS)</h1>
+<div class="phone">
+  <aside>
+    {% for p in phones %}<p><a href="/phone?p={{ p|urlencode }}" {{ 'class=current' if p == sel }}>{{ p }}</a></p>{% else %}<p class="muted">No SMS yet.</p>{% endfor %}
+  </aside>
+  <section>
+    {% for e in thread %}
+      <div class="bubble {{ 'out' if e.direction == 'out' else 'in' }}"><pre>{{ e.text }}</pre><span class="muted">{{ e.at }}</span></div>
+    {% endfor %}
+    {% if sel %}
+    <form hx-post="/dev/sms/{{ sel|urlencode }}/reply" hx-swap="none">
+      <label>Reply as owner <input name="text" size="50" required></label>
+      <button>Send</button>
+    </form>
+    {% endif %}
+  </section>
+</div>
+{% endblock %}

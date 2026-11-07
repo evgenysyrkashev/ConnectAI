@@ -1,0 +1,78 @@
+{% set m = card.m %}
+<article class="card {{ m.status }}" id="m-{{ m.id }}">
+  <header>
+    <strong><a href="/businesses/{{ m.entity_id }}">{{ m.entity_name }}</a></strong> ({{ m.entity_id }})
+    <span class="badge ch-{{ m.channel }}">{{ m.channel }}</span>
+    <span class="badge">{{ m.mode }}</span>
+    <span class="badge status-{{ m.status }}">{{ m.status }}</span>
+    <span class="badge">{{ m.language }}</span>
+    {% if card.contact and card.contact.preferred_channel == "APP_PUSH" %}<span class="badge">prefers app push</span>{% endif %}
+    {% if m.at_risk_views %}<span class="muted">≈ {{ m.at_risk_views }} Google views at risk</span>{% endif %}
+  </header>
+  {% if m.status == "skipped" %}
+    <p class="muted">Stayed quiet: <strong>{{ m.skip_reason }}</strong></p>
+    {% for d in card.dropped %}<p class="muted">dropped {{ d.date }}: {{ d.code }}</p>{% endfor %}
+  {% else %}
+    <p>To: <code>{{ card.to }}</code>{% if m.channel == "email" and not m.to_email and card.contact %} (CRM: {{ m.contact_email }}){% endif %}</p>
+    {% if m.error %}<p class="error">Error: {{ m.error }}</p>{% endif %}
+    <p>Subject: <strong>{{ m.subject }}</strong> <span class="muted">(intro: {{ m.intro_source }})</span></p>
+    {% if m.channel == "whatsapp" %}
+      <div class="bubble wa"><pre>{{ m.wa_template }}:
+{% for p in m.wa_params %}{{ loop.index }}. {{ p }}
+{% endfor %}</pre>
+        <div class="buttons">{% for c in m.wa_payload_codes %}<span class="wa-button">{{ c }}</span>{% endfor %}</div>
+      </div>
+    {% elif m.channel == "sms" %}
+      <div class="bubble sms"><pre>{{ m.sms_text }}</pre><span class="muted">{{ (m.sms_text or "")|length }} characters</span></div>
+    {% endif %}
+    {% if m.dropped_items %}<p class="muted">{{ m.dropped_items }} more day(s) not included (length limit)</p>{% endif %}
+    {% for d in card.dropped %}<p class="muted">dropped {{ d.date }}: {{ d.code }}</p>{% endfor %}
+    <details {{ "open" if m.channel == "email" }}><summary>Email body</summary><pre>{{ m.body }}</pre></details>
+  {% endif %}
+
+  {% if m.status in ("draft", "failed") %}
+  <form hx-post="/ui/messages/{{ m.id }}/send" hx-swap="none" hx-confirm="Send this message to {{ card.to }}?">
+    <button type="submit" class="primary">Send message</button>
+  </form>
+  {% endif %}
+  {% if m.status == "draft" %}
+  <div class="actions">
+    <form hx-post="/ui/messages/{{ m.id }}/channel" hx-swap="none" class="inline">
+      <select name="channel" aria-label="Channel">{% for ch in cfg.channels_enabled %}<option {{ "selected" if ch == m.channel }}>{{ ch }}</option>{% endfor %}</select>
+      <button>Change channel</button>
+    </form>
+    <button hx-post="/ui/messages/{{ m.id }}/regenerate" hx-swap="none">Regenerate intro</button>
+    <details><summary>Edit intro</summary>
+      <form hx-post="/ui/messages/{{ m.id }}/intro" hx-swap="none">
+        <label>Subject <input name="subject" value="{{ m.subject }}" size="60"></label>
+        <label>Intro <textarea name="intro" rows="4" cols="70">{{ m.intro }}</textarea></label>
+        <button>Save intro</button>
+      </form>
+    </details>
+  </div>
+  {% endif %}
+
+  {% if m.status == "sent" %}
+    <p class="muted">Sent {{ m.sent_at }}{% if m.delivery_status %} · delivery: {{ m.delivery_status }}{% endif %}</p>
+    {% if m.superseded_by %}
+      <p class="note">Superseded – answered on the other channel</p>
+    {% elif m.escalated_to %}
+      <p class="note">Reminder sent by email → <a href="#m-{{ m.escalated_to }}">see message</a></p>
+    {% elif m.escalate_at %}
+      <p class="note">Fallback at {{ m.escalate_at }} if no answer ({{ m.escalation_basis }})</p>
+      <form hx-post="/ui/messages/{{ m.id }}/escalation" hx-swap="none" class="inline">
+        <button name="action" value="now">Escalate now</button>
+        <button name="action" value="cancel">Cancel</button>
+      </form>
+    {% elif card.note %}<p class="muted">No fallback: {{ card.note }}</p>{% endif %}
+    {% if m.escalated_from %}<p class="muted">Fallback for <a href="#m-{{ m.escalated_from }}">an earlier message</a></p>{% endif %}
+    {% if card.no_answer %}<p class="muted">Owner did not answer (simulator)</p>{% endif %}
+  {% endif %}
+
+  {% for it in card.replies %}
+  <div class="reply-box">
+    <p class="muted"><span class="badge st-{{ it.r.status }}">{{ it.r.status }}</span> Reply via {{ it.r.source }} · {{ it.r.received_at }}</p>
+    {% include "partials/reply_body.html" %}
+  </div>
+  {% endfor %}
+</article>

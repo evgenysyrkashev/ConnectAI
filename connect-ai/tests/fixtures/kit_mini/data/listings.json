@@ -1,0 +1,60 @@
+{
+ "listings": [
+  {
+   "publisherId": "1881",
+   "status": "LIVE"
+  },
+  {
+   "publisherId": "APPLE",
+   "status": "LIVE"
+  },
+  {
+   "publisherId": "BING",
+   "status": "LIVE"
+  },
+  {
+   "publisherId": "CHATGPT_SEARCH",
+   "status": "LIVE"
+  },
+  {
+   "publisherId": "ENIRO",
+   "status": "LIVE"
+  },
+  {
+   "publisherId": "FACEBOOK",
+   "status": "LIVE"
+  },
+  {
+   "publisherId": "FONECTA_CALLER",
+   "status": "LIVE"
+  },
+  {
+   "publisherId": "FONECTA_FINDER",
+   "status": "LIVE"
+  },
+  {
+   "publisherId": "FOURSQUARE",
+   "status": "LIVE"
+  },
+  {
+   "publisherId": "GOOGLEMYBUSINESS",
+   "status": "LIVE"
+  },
+  {
+   "publisherId": "GULESIDER",
+   "status": "LIVE"
+  },
+  {
+   "publisherId": "HITTA",
+   "status": "LIVE"
+  },
+  {
+   "publisherId": "TRIPADVISOR",
+   "status": "LIVE"
+  },
+  {
+   "publisherId": "WAZE",
+   "status": "LIVE"
+  }
+ ]
+}

@@ -1,0 +1,27 @@
+{# expects `it` (reply item) #}
+{% set r = it.r %}
+<pre>{{ r.cleaned_text }}</pre>
+<div id="tr-{{ r.id }}" class="translation">
+  <button type="button" class="link" hx-post="/ui/replies/{{ r.id }}/translate" hx-vals='{"to": "{{ locale }}"}' hx-target="#tr-{{ r.id }}" hx-swap="innerHTML">Translate to {{ locale|upper }}</button>
+</div>
+{% if r.checks %}
+<p class="muted">matched by {{ r.checks.matched_by }} ·
+  {% for k in ("token_valid", "sender_matches", "auth_pass", "auto_reply", "expired", "duplicate") %}<span class="badge">{{ k }}: {{ "yes" if r.checks[k] else "no" }}</span>{% endfor %}</p>
+{% endif %}
+{% if r.problems %}<ul class="problems">{% for p in r.problems %}<li>{{ p }}</li>{% endfor %}</ul>{% endif %}
+{% if r.parsed %}<p>Parsed: <strong>{{ r.parsed.intent }}</strong> ({{ "%.2f"|format(r.parsed.confidence) }}) – {{ r.parsed.summary }}</p>{% endif %}
+{% if r.decisions %}<p>Decisions: {% for d in r.decisions %}{{ d.date }}: {{ d.action }}{{ " " ~ d.hours if d.hours }}{{ "; " if not loop.last }}{% endfor %}</p>{% endif %}
+{% if it.proposed %}
+<table><thead><tr><th>Key</th><th>Before</th><th>After</th></tr></thead>
+  {% for p in it.proposed %}<tr><td>{{ p.key }}</td><td><code>{{ p.before }}</code></td><td><code>{{ p.after }}</code></td></tr>{% endfor %}</table>
+{% endif %}
+{% if it.match is not none %}<p>Parser vs simulator: <strong>{{ "match" if it.match else "mismatch" }}</strong></p>{% endif %}
+{% if r.status == "needs_review" %}
+<div class="actions">
+  <button class="primary" hx-post="/ui/replies/{{ r.id }}/approve" hx-swap="none">Apply</button>
+  <button hx-post="/ui/replies/{{ r.id }}/reject" hx-swap="none">Reject</button>
+  <button hx-post="/ui/replies/{{ r.id }}/retry" hx-swap="none">Retry</button>
+</div>
+{% elif r.status == "error" %}
+<button hx-post="/ui/replies/{{ r.id }}/retry" hx-swap="none">Retry</button>
+{% endif %}

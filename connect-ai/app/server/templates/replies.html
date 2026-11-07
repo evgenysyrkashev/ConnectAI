@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Replies{% endblock %}
+{% block content %}
+<h1>Replies</h1>
+<form method="get" class="inline">
+  <select name="status" aria-label="Status">{% for s in ("needs_review", "applied", "error", "ignored", "unmatched", "rejected", "") %}<option value="{{ s }}" {{ "selected" if s == status }}>{{ s or "all" }}</option>{% endfor %}</select>
+  <button>Filter</button>
+</form>
+{% for it in items %}{% set r = it.r %}
+<article class="card">
+  <header>
+    <span class="badge st-{{ r.status }}">{{ r.status }}</span>
+    <span class="badge">{{ r.source }}{% if r.source in ("simulator",) %} (simulated){% elif r.source == "sms" %} (simulated SMS){% endif %}</span>
+    {% if r.entity_id %}<a href="/businesses/{{ r.entity_id }}">{{ r.entity_id }}</a>{% endif %}
+    <span class="muted">{{ r.received_at }} from {{ r.sender }}</span>
+  </header>
+  {% include "partials/reply_body.html" %}
+</article>
+{% else %}<p class="muted">Nothing here.</p>{% endfor %}
+{% endblock %}

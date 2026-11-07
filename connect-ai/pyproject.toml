@@ -1,0 +1,15 @@
+[project]
+name = "connect-ai"
+version = "0.1.0"
+license = "MIT"
+license-files = ["LICENSE"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py312"
+extend-exclude = ["mock_api", "examples", "evaluation"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+markers = ["integration: starts the kit mock / loads kit data (slower)"]

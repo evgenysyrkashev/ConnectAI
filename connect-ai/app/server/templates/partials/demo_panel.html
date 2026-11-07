@@ -1,0 +1,69 @@
+{# Demo sidebar. All demo and dev controls live here; `panel` is None when none is enabled. #}
+<aside id="demo-panel" class="{{ 'open' if panel.open else 'collapsed' }}" aria-label="Demo controls">
+  {% if panel.open %}
+  <div class="panel-body">
+    <div class="banners pills">{% for cls, text in banners %}<span class="{{ cls }}">{{ text }}</span>{% endfor %}</div>
+    {% if panel.has.simulate or panel.has.mail or panel.has.wa %}
+    <label class="picker">Message
+      <select id="panel-mid" name="mid" aria-label="Message for the demo actions">
+        <option value="">– pick a sent message –</option>
+        {% for m in panel.messages %}<option value="{{ m.id }}" {{ "selected" if m.id == panel.default }}>{{ m.entity_id }} · {{ m.channel }} · {{ (m.sent_at or "")[:16] }}</option>{% endfor %}
+      </select>
+    </label>
+    {% endif %}
+
+    {% if panel.has.clock %}
+    <details open><summary>Demo clock</summary>
+      <form hx-post="/dev/clock/advance" hx-swap="none" class="inline">
+        <input name="hours" type="number" step="any" value="5" aria-label="Hours to advance"> h
+        <button type="submit">Advance</button>
+      </form>
+      <div class="actions">
+        <button hx-post="/dev/clock/reset" hx-swap="none">Reset</button>
+        <button hx-post="/dev/escalate" hx-swap="none">Run escalations</button>
+      </div>
+    </details>
+    {% endif %}
+
+    {% if panel.has.simulate %}
+    <details open><summary>Simulate owner</summary>
+      <div class="actions">
+        <button hx-post="/dev/panel/simulate" hx-include="#panel-mid" hx-vals='{"llm": "0"}' hx-swap="none">Simulate owner</button>
+        <button hx-post="/dev/panel/simulate" hx-include="#panel-mid" hx-vals='{"llm": "1"}' hx-swap="none">Simulate owner (LLM)</button>
+      </div>
+    </details>
+    {% endif %}
+
+    {% if panel.has.mail %}
+    <details><summary>Fake email</summary>
+      <form hx-post="/dev/panel/reply" hx-include="#panel-mid" hx-swap="none">
+        <textarea name="text" rows="3" required aria-label="Reply text" placeholder="Write a reply…"></textarea>
+        <label>From <input name="from_email" placeholder="owner address"></label>
+        <label>Auth <select name="auth_pass"><option value="1">pass</option><option value="0">fail</option></select></label>
+        <label>Auto-reply <select name="auto_reply"><option value="0">no</option><option value="1">yes</option></select></label>
+        <label>Token <select name="include_token"><option value="1">kept</option><option value="0">removed</option></select></label>
+        <button>Send reply</button>
+      </form>
+      <p><a href="/outbox">Outbox →</a></p>
+    </details>
+    {% endif %}
+
+    {% if panel.has.wa %}
+    <details><summary>Fake WhatsApp</summary>
+      <form hx-post="/dev/panel/wa-tap" hx-include="#panel-mid" hx-swap="none" class="actions">
+        {% for code in "AEDRCXW" %}<button name="code" value="{{ code }}">Tap {{ code }}</button>{% endfor %}
+      </form>
+      <form hx-post="/dev/panel/wa-text" hx-include="#panel-mid" hx-swap="none">
+        <textarea name="text" rows="2" required aria-label="WhatsApp reply" placeholder="Write a WhatsApp reply…"></textarea>
+        <label><input type="checkbox" name="with_context" value="1"> swipe-reply (with context)</label>
+        <button>Send</button>
+      </form>
+    </details>
+    {% endif %}
+
+    <details><summary>Simulated SMS</summary>
+      <p><a href="/phone">Phone →</a></p>
+    </details>
+  </div>
+  {% endif %}
+</aside>

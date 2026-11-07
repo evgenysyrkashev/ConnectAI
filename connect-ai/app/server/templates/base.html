@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ConnectAI</title>
+  <meta name="htmx-config" content='{"includeIndicatorStyles": false}'>
+  <link rel="stylesheet" href="/static/styles.css?v=10">
+  <script src="/static/theme.js?v=1"></script>
+  <script src="/static/theme.js?v=1"></script>
+  <script src="/static/htmx.min.js"></script>
+  <script src="/static/app.js?v=5"></script>
+</head>
+<body>
+  <header>
+    <nav>
+      <a class="brand" href="/"><strong>ConnectAI</strong>{% if needs_review %} <span class="count" title="Replies waiting for review">{{ needs_review }}</span>{% endif %}</a>
+      {% if panel %}<form class="panel-toggle" hx-post="/ui/demo-panel" hx-swap="none">
+        <input type="hidden" name="open" value="{{ '0' if panel.open else '1' }}">
+        <button type="submit" class="demo-toggle" aria-expanded="{{ 'true' if panel.open else 'false' }}" aria-controls="demo-panel" title="{{ 'Hide' if panel.open else 'Show' }} demo controls">Demo {{ '▴' if panel.open else '▾' }}</button>
+      </form>{% endif %}
+      <button type="button" id="theme-toggle" class="theme-toggle">◐ Auto</button>
+    </nav>
+    {% if not panel %}<div class="banners">
+      {% for cls, text in banners %}<span class="{{ cls }}">{{ text }}</span>{% endfor %}
+    </div>{% endif %}
+  </header>
+  <main>{% block content %}{% endblock %}</main>
+  {% if panel %}{% include "partials/demo_panel.html" %}{% endif %}
+</body>
+</html>

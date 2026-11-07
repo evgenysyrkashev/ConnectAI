@@ -1,0 +1,100 @@
+{
+ "response": {
+  "entities": [
+   {
+    "meta": {
+     "accountId": "4415001",
+     "uid": "83257338866545",
+     "id": "FI-D0001",
+     "folderId": "0",
+     "labels": [],
+     "countryCode": "FI",
+     "entityType": "location",
+     "language": "fi",
+     "timestamp": "2026-11-05T21:00:00"
+    },
+    "name": "Kahvila Aurora",
+    "address": {
+     "line1": "Myllykatu 17",
+     "city": "Helsinki",
+     "postalCode": "00830",
+     "countryCode": "FI"
+    },
+    "geocodedCoordinate": {
+     "latitude": 60.158895,
+     "longitude": 24.925822
+    },
+    "mainPhone": "+3580002930179",
+    "websiteUrl": {
+     "url": "https://example.com/fi-d0001"
+    },
+    "categoryIds": [
+     "1001"
+    ],
+    "timezone": "Europe/Helsinki",
+    "hours": {
+     "monday": {
+      "openIntervals": [
+       {
+        "start": "07:30",
+        "end": "18:00"
+       }
+      ]
+     },
+     "tuesday": {
+      "openIntervals": [
+       {
+        "start": "07:30",
+        "end": "18:00"
+       }
+      ]
+     },
+     "wednesday": {
+      "openIntervals": [
+       {
+        "start": "07:30",
+        "end": "18:00"
+       }
+      ]
+     },
+     "thursday": {
+      "openIntervals": [
+       {
+        "start": "07:30",
+        "end": "18:00"
+       }
+      ]
+     },
+     "friday": {
+      "openIntervals": [
+       {
+        "start": "07:30",
+        "end": "18:00"
+       }
+      ]
+     },
+     "saturday": {
+      "openIntervals": [
+       {
+        "start": "09:00",
+        "end": "18:00"
+       }
+      ]
+     },
+     "sunday": {
+      "openIntervals": [
+       {
+        "start": "10:00",
+        "end": "16:00"
+       }
+      ]
+     }
+    },
+    "closed": false,
+    "c_segment": "cafe",
+    "c_connectProduct": "Fonecta Connect",
+    "c_connectCustomerSince": "2023-03-04"
+   }
+  ]
+ }
+}

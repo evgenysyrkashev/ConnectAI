@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}New campaign{% endblock %}
+{% block content %}
+<h1>New campaign</h1>
+<form method="get" class="inline">
+  <label>Template
+    <select name="template">{% for t in templates_list %}<option value="{{ t.id }}" {{ "selected" if t.id == tpl.id }}>{{ t.label }}</option>{% endfor %}</select>
+  </label>
+  <label>Split <select name="split">{% for s in ("demo", "dev") %}<option {{ "selected" if s == split }}>{{ s }}</option>{% endfor %}</select></label>
+  <label><input type="checkbox" name="stale" value="1" {{ "checked" if stale }}> stale evidence only</label>
+  <label>Top N by views at risk <input type="number" name="top" min="1" value="{{ default_top }}" class="narrow"></label>
+  <button>Reload</button>
+  <button name="top" value="{{ default_top }}">Select top {{ default_top }}</button>
+</form>
+<p class="muted">{{ tpl.description }}</p>
+<form hx-post="/ui/campaigns" hx-swap="none">
+  <input type="hidden" name="template_id" value="{{ tpl.id }}">
+  {% if tpl.kind == "dates" %}
+  <label>From <input type="date" name="date_from" value="{{ params.date_from }}"></label>
+  <label>To <input type="date" name="date_to" value="{{ params.date_to }}"></label>
+  {% endif %}
+  <p><button type="button" data-check-all="entity_ids">Select all</button> <button type="button" data-check-none="entity_ids">Select none</button></p>
+  <table>
+    <thead><tr><th></th><th>ID</th><th>Name</th><th>Channel</th><th>Views at risk</th><th>Stale evidence</th></tr></thead>
+    <tbody>
+    {% for r in rows %}
+      <tr>
+        <td><input type="checkbox" name="entity_ids" value="{{ r.id }}" aria-label="Select {{ r.id }}" {{ "checked" if r.id in selected }}></td>
+        <td><a href="/businesses/{{ r.id }}">{{ r.id }}</a></td><td>{{ r.name }}</td><td>{{ r.channel }}</td><td>{{ r.views }}</td><td>{{ "yes" if r.stale_evidence else "" }}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  <button type="submit">Create drafts</button>
+</form>
+{% endblock %}

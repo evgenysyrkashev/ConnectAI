@@ -1,0 +1,14 @@
+.venv/
+__pycache__/
+.env
+.env.*
+!.env.example
+infra/env.staging.yaml
+mock_api/state.json
+outputs/
+.pytest_cache/
+.ruff_cache/
+.idea/
+.DS_Store
+*-key.json
+credentials*.json

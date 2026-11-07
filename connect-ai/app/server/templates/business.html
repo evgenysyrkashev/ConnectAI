@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block title %}{{ ent.name }}{% endblock %}
+{% block content %}
+<p><a href="/">← Back to list</a></p>
+<h1>{{ ent.name }} <span class="muted">{{ eid }}</span></h1>
+<ol class="steps">{% for name, ok in steps %}<li class="{{ 'ok' if ok else 'todo' }}">{{ name }}</li>{% endfor %}</ol>
+<div class="two-col">
+<section class="details">
+<dl class="details-list">
+  <dt>City</dt><dd>{{ ent.address.city }}</dd>
+  <dt>Segment</dt><dd>{{ ent.c_segment }}</dd>
+  <dt>Closed in Yext</dt><dd>{{ ent.closed }}</dd>
+  {% if contact %}
+  <dt>Contact</dt><dd>{{ contact.first_name }}
+    {% if contact.opted_out %}<span class="badge status-failed">opted out</span>{% endif %}</dd>
+  <dt>Language</dt><dd>{{ contact.language }}</dd>
+  <dt>Channel</dt><dd>{{ contact.preferred_channel }}
+    {% if contact.preferred_channel == "APP_PUSH" %}<span class="badge">prefers app push</span>{% endif %}</dd>
+  <dt>Contact window</dt><dd>{{ contact.best_contact_window }}</dd>
+  {% else %}
+  <dt>Contact</dt><dd class="error">No contact in the CRM</dd>
+  {% endif %}
+  {% if perm %}
+  <dt>Standing permission</dt><dd><strong>{{ perm.status }}</strong> on {{ perm.at }}<br><q>{{ perm.evidence_text }}</q></dd>
+  {% elif contact and contact.standing_permission %}
+  <dt>Standing permission</dt><dd>yes (from the CRM)</dd>
+  {% endif %}
+</dl>
+</section>
+<section class="hours-col">
+<h2>Opening hours now (Yext)</h2>
+<table class="hours">
+  {% for d in ("monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday") %}
+  <tr><th>{{ d[:3] }}</th><td>{% set day = hours.get(d) %}{% if not day or day.isClosed %}closed{% else %}{% for iv in day.openIntervals %}{{ iv.start }}–{{ iv.end }}{{ ", " if not loop.last }}{% endfor %}{% endif %}</td></tr>
+  {% endfor %}
+  {% for h in hours.get("holidayHours", []) %}
+  <tr><th>{{ h.date }}</th><td>{% if h.isClosed %}closed{% elif h.isRegularHours %}regular{% else %}{% for iv in h.openIntervals %}{{ iv.start }}–{{ iv.end }}{{ ", " if not loop.last }}{% endfor %}{% endif %}</td></tr>
+  {% endfor %}
+</table>
+</section>
+</div>
+
+
+<h2>Upcoming days scheduled</h2>
+<table>
+  <thead><tr><th>Date</th><th>Day</th><th>Action</th><th>Shown</th><th>Suggested</th><th>Basis</th><th>Evidence</th><th>Why (not) included</th></tr></thead>
+  <tbody>
+  {% for x in rows if x.det.action != "NO_ACTION" %}
+    <tr class="act-{{ x.det.action }}">
+      <td class="nowrap">{{ x.row.date }}</td><td>{{ x.row.day_key|day_label }}</td><td>{{ x.det.action }}</td><td>{{ x.det.shown_hours }}</td>
+      <td>{{ x.det.suggested_hours or "" }}</td><td>{{ x.det.basis|basis_label }}</td><td>{% for sg in x.det.signals %}<div>{{ sg }}</div>{% endfor %}</td>
+      <td>{{ x.quiet }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+
+<section id="message">
+<h2>Message</h2>
+{% if current %}{% set card = current %}{% include "partials/message_card.html" %}{% else %}<p class="muted">No message yet. Create one below to ask this owner about their hours.</p>{% endif %}
+{% if can_create %}
+<details {{ "open" if not current }}>
+  <summary>{{ "Create another message" if current else "Create message" }}</summary>
+  <form hx-post="/ui/businesses/{{ eid }}/messages" hx-swap="none">
+    <button type="submit" class="primary">Create draft</button>
+    <span class="muted">The message type is chosen from what we found for this business. The same quiet rules as a campaign apply.</span>
+  </form>
+</details>
+{% endif %}
+{% if older %}
+<h3>Earlier messages ({{ older|length }})</h3>
+{% for card in older %}{% include "partials/message_card.html" %}{% endfor %}
+{% endif %}
+</section>
+
+<h2>Changes</h2>
+<table>
+  {% for ch in changes %}
+  <tr><td>{{ ch.created_at }}</td><td>{{ ch.actor }}</td><td><code>{{ ch.after }}</code>{% if ch.sandbox %}<br>{% if ch.sandbox.ok %}also written to the Yext sandbox ✓{% else %}Yext sandbox ✗ ({{ ch.sandbox.error }}){% endif %}{% endif %}</td>
+    <td>{% if ch.reverted_at %}reverted {{ ch.reverted_at }}{% elif ch.revert_of %}revert{% else %}
+      <button hx-post="/ui/changes/{{ ch.id }}/revert" hx-swap="none" hx-confirm="Revert this change?">Revert</button>{% endif %}</td></tr>
+  {% else %}<tr><td class="muted">No changes yet.</td></tr>{% endfor %}
+</table>
+{% endblock %}

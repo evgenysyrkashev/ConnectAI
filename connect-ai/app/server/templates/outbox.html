@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Outbox{% endblock %}
+{% block content %}
+<h1>Outbox (fake mail and WhatsApp)</h1>
+<h2>Email</h2>
+{% for m in mails %}
+<article class="card"><header>To <code>{{ m.to }}</code> · <strong>{{ m.subject }}</strong> <span class="muted">thread {{ m.thread_id }}</span></header><pre>{{ m.text }}</pre></article>
+{% else %}<p class="muted">Nothing sent.</p>{% endfor %}
+<h2>WhatsApp</h2>
+{% for c in wa %}
+<article class="card"><header>{{ c.kind }} to <code>{{ c.to }}</code>{% if c.name %} · {{ c.name }}{% endif %}</header>
+<pre>{% if c.kind == "text" %}{{ c.text }}{% else %}{{ c.params|join(" | ") }}
+buttons: {{ c.payloads|length }}{% endif %}</pre></article>
+{% else %}<p class="muted">Nothing sent.</p>{% endfor %}
+{% endblock %}

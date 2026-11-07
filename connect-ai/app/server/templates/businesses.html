@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}Businesses{% endblock %}
+{% block content %}
+<section id="attention">
+  <h2>Needs attention{% if attention %} ({{ attention|length }}){% endif %}</h2>
+  {% if attention %}
+  <table>
+    <thead><tr><th>ID</th><th>Name</th><th>Why</th></tr></thead>
+    <tbody>
+    {% for a in attention %}
+      <tr><td><a href="/businesses/{{ a.id }}#message">{{ a.id }}</a></td><td>{{ a.name }}</td><td>{{ a.reasons|join("; ") }}</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  {% else %}<p class="muted">Nothing needs a human right now.</p>{% endif %}
+</section>
+<section id="suggestions">
+  <h2>Businesses with suggestions{% if suggested %} ({{ suggested|length }}){% endif %}</h2>
+  {% if suggested %}
+  <table>
+    <thead><tr><th>ID</th><th>Name</th><th>City</th><th>#SUGGEST</th><th>Views at risk</th><th>Contact window</th><th>Scheduled</th></tr></thead>
+    <tbody>
+    {% for r in suggested %}
+      <tr><td><a href="/businesses/{{ r.id }}">{{ r.id }}</a></td><td>{{ r.name }}</td><td>{{ r.city }}</td><td>{{ r.n_suggest }}</td><td>{{ r.views }}</td>
+        <td>{{ r.contact.best_contact_window if r.contact else "-" }}</td>
+        <td class="sched-{{ r.sched.state }}">{{ r.sched.text }}{% if r.sched.state == "none" %} <span class="muted">(not scheduled)</span>{% endif %}</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  <p class="muted">Messages are scheduled automatically and go out when each business's contact window opens (demo clock time). The simulated owner answers once a message is sent.</p>
+  {% else %}<p class="muted">No businesses have suggestions right now.</p>{% endif %}
+</section>
+<h2>All businesses</h2>
+<form method="get" class="inline" data-autosubmit>
+  <label>Split
+    <select name="split">{% for s in ("demo", "dev", "test", "reference") %}<option {{ "selected" if s == split }}>{{ s }}</option>{% endfor %}</select>
+  </label>
+  {% macro multi(name, label, options, selected) %}
+  <div class="ms" data-ms data-field="{{ name }}" data-label="{{ label }}">
+    <button type="button" class="ms-btn" aria-expanded="false">{% set joined = selected|join(", ") %}{{ label }}: {{ "all" if not selected else (joined if joined|length <= 28 else selected|length ~ " selected") }}</button>
+    <div class="ms-panel" hidden>
+      {% for o in options %}<button type="button" class="ms-opt" data-value="{{ o }}" aria-pressed="{{ 'true' if o in selected else 'false' }}">{{ o }}</button>{% endfor %}
+      {% if not options %}<span class="muted ms-empty">no options</span>{% endif %}
+    </div>
+    {% for v in selected %}<input type="hidden" name="{{ name }}" value="{{ v }}">{% endfor %}
+  </div>
+  {% endmacro %}
+  {{ multi("country", "Country", ("FI", "SE", "NO"), country) }}
+  {{ multi("segment", "Segment", segments, segment) }}
+  {{ multi("city", "City", cities, city) }}
+  {% if country or segment or city %}<a class="ms-reset" href="/?split={{ split }}">Reset filters</a>{% endif %}
+  {% if capped %}<span class="muted">showing the first {{ rows|length }} of {{ total }}</span>{% endif %}
+</form>
+<table data-sortable>
+  <thead><tr><th>ID</th><th>Name</th><th>City</th><th>Segment</th><th>Lang</th><th>Channel</th><th>Opt-out</th><th>Permission</th><th>History</th><th>#SUGGEST</th><th>#FLAG</th><th>Reply</th><th>Views at risk</th></tr></thead>
+  <tbody>
+  {% for r in rows %}
+    <tr>
+      <td><a href="/businesses/{{ r.id }}">{{ r.id }}</a></td><td>{{ r.name }}</td><td>{{ r.city }}</td><td>{{ r.segment }}</td>
+      <td>{{ r.contact.language if r.contact else "-" }}</td><td>{{ r.contact.preferred_channel if r.contact else "-" }}</td>
+      <td>{{ "yes" if r.contact and r.contact.opted_out else "" }}</td>
+      <td>{{ r.perm or ("yes (CRM)" if r.contact and r.contact.standing_permission else "") }}</td>
+      <td>{{ "yes" if r.history else "no" }}</td><td>{{ r.n_suggest }}</td><td>{{ r.n_flag }}</td><td>{% if r.needs_review %}<a class="badge st-needs_review" href="/businesses/{{ r.id }}#message">needs review</a>{% endif %}</td><td>{{ r.views }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endblock %}
